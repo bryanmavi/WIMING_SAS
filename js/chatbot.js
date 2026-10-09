@@ -151,19 +151,40 @@
     try {
       const stored = JSON.parse(sessionStorage.getItem(QUOTE_STORAGE_KEY));
       if (!stored || !Number.isInteger(stored.step) || !stored.answers || typeof stored.answers !== 'object') {
+        try {
+          sessionStorage.removeItem(QUOTE_STORAGE_KEY);
+        } catch {
+          // Ignore unavailable storage; no draft is loaded into memory.
+        }
         return { step: 0, answers: {}, consentAccepted: false };
       }
       const consentAccepted = stored.consentAccepted === true;
       const answers = {};
       const limits = { product: 80, project: 40, sector: 40, urgency: 40, city: 80, name: 100, company: 120, phone: 20 };
       Object.entries(limits).forEach(([key, limit]) => {
-        const isPersonal = ['name', 'company', 'phone'].includes(key);
+        const isPersonal = ['city', 'name', 'company', 'phone'].includes(key);
         if (typeof stored.answers[key] === 'string' && (!isPersonal || consentAccepted)) {
           answers[key] = WM_SECURITY.cleanText(stored.answers[key], limit);
         }
       });
-      return { step: Math.max(0, Math.min(stored.step, 6)), answers, consentAccepted };
+      const step = !consentAccepted && stored.step > 4
+        ? 4
+        : Math.max(0, Math.min(stored.step, 6));
+      const draft = { step, answers, consentAccepted };
+      if (!consentAccepted) {
+        try {
+          sessionStorage.setItem(QUOTE_STORAGE_KEY, JSON.stringify(draft));
+        } catch {
+          // Keep the sanitized in-memory draft if browser storage is unavailable.
+        }
+      }
+      return draft;
     } catch {
+      try {
+        sessionStorage.removeItem(QUOTE_STORAGE_KEY);
+      } catch {
+        // Ignore unavailable storage; no draft is loaded into memory.
+      }
       return { step: 0, answers: {}, consentAccepted: false };
     }
   }
@@ -227,6 +248,9 @@
             <small>Información y cotizaciones</small>
           </div>
           <button class="quote-start-button" id="cb-start-quote" type="button">Cotizar</button>
+          <button class="new-conversation-button" id="cb-new-conversation" type="button" aria-label="Nueva conversación" title="Nueva conversación">
+            <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+          </button>
           <button class="close-btn" id="cb-close" aria-label="Cerrar">&times;</button>
         </div>
         <div class="chatbot-body" id="cb-body" aria-live="polite" aria-relevant="additions"></div>
@@ -268,10 +292,14 @@
       document.getElementById('cb-toggle').addEventListener('click', () => this.toggleMenu());
       document.getElementById('cb-assistant').addEventListener('click', () => {
         this.toggleMenu(false);
+        this.input.disabled = false;
         this.toggle(true);
         emitAnalytics('wiming:chat-start', { flow: 'faq' });
       });
       document.getElementById('cb-close').addEventListener('click', () => this.toggle(false));
+      document.getElementById('cb-new-conversation').addEventListener('click', (event) => {
+        this.requestConversationReset(event.currentTarget);
+      });
       document.getElementById('cb-start-quote').addEventListener('click', () => QuoteWizard.start());
       this.inputForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -284,6 +312,7 @@
       this.input.addEventListener('input', () => {
         if (this.mode === 'quote' && QuoteWizard.state.step === 4) {
           this.input.value = WM_SECURITY.cleanText(this.input.value, 80);
+          if (!QuoteWizard.state.consentAccepted) return;
           QuoteWizard.state.answers.city = this.input.value;
           QuoteWizard.save();
         }
@@ -297,6 +326,86 @@
       const shouldOpen = force === undefined ? !w.classList.contains('open') : force;
       w.classList.toggle('open', shouldOpen);
       if (shouldOpen && !this.inputForm.hidden) this.input.focus();
+    },
+
+    requestConversationReset(trigger) {
+      const backdrop = document.createElement('div');
+      backdrop.className = 'chat-reset-backdrop';
+      const dialog = document.createElement('div');
+      dialog.className = 'chat-reset-dialog';
+      dialog.setAttribute('role', 'alertdialog');
+      dialog.setAttribute('aria-modal', 'true');
+      dialog.setAttribute('aria-labelledby', 'chat-reset-title');
+      dialog.setAttribute('aria-describedby', 'chat-reset-description');
+
+      const title = document.createElement('h2');
+      title.id = 'chat-reset-title';
+      title.textContent = 'Nueva conversación';
+      const description = document.createElement('p');
+      description.id = 'chat-reset-description';
+      description.textContent = 'Se borrarán tus respuestas. ¿Empezar de nuevo?';
+      const actions = document.createElement('div');
+      actions.className = 'chat-reset-actions';
+      const cancel = document.createElement('button');
+      cancel.type = 'button';
+      cancel.className = 'btn btn-outline-secondary';
+      cancel.textContent = 'Cancelar';
+      const accept = document.createElement('button');
+      accept.type = 'button';
+      accept.className = 'btn btn-danger';
+      accept.textContent = 'Aceptar';
+      actions.append(cancel, accept);
+      dialog.append(title, description, actions);
+      backdrop.appendChild(dialog);
+
+      const closeDialog = () => {
+        backdrop.remove();
+        if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus();
+      };
+      cancel.addEventListener('click', closeDialog);
+      accept.addEventListener('click', () => {
+        backdrop.remove();
+        this.resetConversation();
+      });
+      dialog.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          closeDialog();
+          return;
+        }
+        if (event.key === 'Tab' && event.shiftKey && document.activeElement === cancel) {
+          event.preventDefault();
+          accept.focus();
+        } else if (event.key === 'Tab' && !event.shiftKey && document.activeElement === accept) {
+          event.preventDefault();
+          cancel.focus();
+        }
+      });
+
+      document.body.appendChild(backdrop);
+      cancel.focus();
+    },
+
+    resetConversation() {
+      try {
+        sessionStorage.removeItem(QUOTE_STORAGE_KEY);
+      } catch {
+        // Reset the in-memory conversation even when browser storage is unavailable.
+      }
+      QuoteWizard.state = { step: 0, answers: {}, consentAccepted: false };
+      this.mode = 'faq';
+      this.body.replaceChildren();
+      this.quick.replaceChildren();
+      this.quick.hidden = false;
+      this.body.removeAttribute('aria-label');
+      this.inputForm.hidden = false;
+      this.input.disabled = false;
+      this.input.value = '';
+      this.input.placeholder = 'Escribe tu pregunta...';
+      this.input.setAttribute('aria-label', 'Escribe tu pregunta');
+      this.greet();
+      this.toggle(true);
+      emitAnalytics('wiming:chat-reset', { flow: 'quote' });
     },
 
     toggleMenu(force) {
@@ -430,6 +539,7 @@
     save() {
       try {
         if (!this.state.consentAccepted) {
+          delete this.state.answers.city;
           delete this.state.answers.name;
           delete this.state.answers.company;
           delete this.state.answers.phone;
@@ -491,7 +601,21 @@
         Chat.input.value = this.state.answers.city || '';
         Chat.input.placeholder = 'Escribe la ciudad';
         Chat.input.setAttribute('aria-label', 'Ciudad del proyecto');
-        Chat.input.focus();
+        Chat.input.disabled = !this.state.consentAccepted;
+        if (!this.state.consentAccepted) {
+          appendDataConsent(Chat.body, 'quote-city-consent', false, (accepted) => {
+            if (!accepted) {
+              this.revokeConsent();
+              return;
+            }
+            this.state.consentAccepted = true;
+            this.save();
+            Chat.input.disabled = false;
+            Chat.input.focus();
+          });
+        } else {
+          Chat.input.focus();
+        }
         return;
       }
 
@@ -517,6 +641,10 @@
     },
 
     acceptCity(value) {
+      if (!this.state.consentAccepted) {
+        this.setStatus('Autoriza el tratamiento de datos antes de ingresar la ciudad.');
+        return;
+      }
       const city = WM_SECURITY.cleanText(value, 80);
       if (city.length < 2 || city.length > 80) {
         this.setStatus('Escribe una ciudad válida (de 2 a 80 caracteres).');
@@ -700,6 +828,13 @@
       send.className = 'btn btn-success';
       send.textContent = 'Enviar mi solicitud por WhatsApp';
       actions.appendChild(send);
+
+      const reset = document.createElement('button');
+      reset.type = 'button';
+      reset.className = 'btn btn-outline-secondary';
+      reset.textContent = 'Nueva conversación';
+      reset.addEventListener('click', () => Chat.requestConversationReset(reset));
+      actions.appendChild(reset);
       form.appendChild(actions);
 
       form.addEventListener('submit', (event) => {
@@ -741,6 +876,13 @@
         const whatsappUrl = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
         emitAnalytics('wiming:chat-send-click', { channel: 'whatsapp' });
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+        Chat.addBot('Listo, tu solicitud quedó preparada.');
+        const anotherQuote = document.createElement('button');
+        anotherQuote.type = 'button';
+        anotherQuote.textContent = 'Hacer otra cotización';
+        anotherQuote.addEventListener('click', () => Chat.requestConversationReset(anotherQuote));
+        Chat.quick.replaceChildren(anotherQuote);
+        Chat.quick.hidden = false;
       });
 
       Chat.body.appendChild(form);

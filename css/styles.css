@@ -335,6 +335,27 @@ body {
   color: #fff;
   font-size: .82rem;
 }
+.chatbot-header > div:nth-of-type(2) { flex: 1 1 96px; min-width: 0; }
+.chatbot-header h6, .chatbot-header small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chatbot-header .new-conversation-button {
+  display: inline-grid;
+  flex: 0 0 40px;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.7);
+  background: transparent;
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.chatbot-header .new-conversation-button:hover { background: rgba(255,255,255,.16); }
 .chatbot-header .close-btn {
   margin-left: auto;
   background: transparent;
@@ -343,6 +364,27 @@ body {
   font-size: 1.3rem;
   cursor: pointer;
 }
+.chat-reset-backdrop {
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0,0,0,.58);
+}
+.chat-reset-dialog {
+  width: min(420px, 100%);
+  padding: 1.25rem;
+  border-top: 4px solid var(--wm-red);
+  background: #fff;
+  color: #222;
+  box-shadow: 0 12px 36px rgba(0,0,0,.28);
+}
+.chat-reset-dialog h2 { margin: 0 0 .65rem; font-size: 1.15rem; }
+.chat-reset-dialog p { margin: 0 0 1rem; }
+.chat-reset-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .5rem; }
+.chat-reset-actions .btn { min-height: 44px; }
 
 .chatbot-body {
   flex: 1;

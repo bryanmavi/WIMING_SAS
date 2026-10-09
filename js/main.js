@@ -24,7 +24,7 @@
     <div class="col-md-6 col-lg-4">
       <div class="card product-card h-100 shadow-sm border-0">
         <img src="${p.img}" alt="${p.alt}" width="${p.width}" height="${p.height}"
-             loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${p.placeholder}'" />
+           loading="lazy" decoding="async" data-fallback="${p.placeholder}" />
         <div class="card-body">
           <span class="badge-tag mb-2 d-inline-block">${p.tag}</span>
           <h3 class="h5 fw-bold mt-2">${p.titulo}</h3>
