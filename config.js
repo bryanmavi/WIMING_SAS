@@ -1,8 +1,8 @@
 window.WM_CONFIG = Object.freeze({
-  WHATSAPP_NUMBER: '',
+  WHATSAPP_NUMBER: '573164820418',
   PHONE: '',
-  EMAIL: '',
+  EMAIL: 'wimingsas@hotmail.com',
   ADDRESS: '',
-  YEARS_EXPERIENCE: null,
+  YEARS_EXPERIENCE: 20,
   PROJECTS_COUNT: null
 });

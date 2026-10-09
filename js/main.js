@@ -29,7 +29,11 @@
           <span class="badge-tag mb-2 d-inline-block">${p.tag}</span>
           <h5 class="fw-bold mt-2">${p.titulo}</h5>
           <p class="text-muted small mb-3">${p.descripcion}</p>
-          <a href="#contacto" class="btn btn-sm btn-outline-danger">Solicitar cotización</a>
+          <h6 class="product-specs-heading">Datos técnicos por confirmar</h6>
+          <ul class="product-specs">
+            ${p.especificaciones.map(([label, value]) => `<li><span>${label}</span><strong>${value}</strong></li>`).join('')}
+          </ul>
+          <a href="#contacto" class="btn btn-sm btn-outline-danger" data-product="${p.titulo}">Solicitar cotización</a>
         </div>
       </div>
     </div>
@@ -72,17 +76,42 @@
       e.preventDefault();
       if (!form.checkValidity()) {
         form.classList.add('was-validated');
-        feedback.innerHTML =
-          '<div class="alert alert-warning py-2 mb-0">Por favor completa los campos requeridos.</div>';
+        feedback.className = 'mt-3 alert alert-warning py-2 mb-0';
+        feedback.textContent = 'Revisa los campos obligatorios y el formato del correo.';
         return;
       }
-      // Mock: simulamos envío
-      feedback.innerHTML =
-        '<div class="alert alert-success py-2 mb-0">¡Gracias! Tu mensaje fue enviado. Te contactaremos pronto.</div>';
+      feedback.className = 'mt-3 alert alert-success py-2 mb-0';
+      feedback.textContent = 'Solicitud revisada correctamente. Este formulario aún no envía los datos; usa un canal de contacto configurado para hacerla llegar.';
       form.reset();
       form.classList.remove('was-validated');
-      setTimeout(() => (feedback.innerHTML = ''), 5000);
     });
+  }
+
+  function setupProductQuotes() {
+    const productField = document.getElementById('contact-product');
+    document.querySelectorAll('[data-product]').forEach((button) => {
+      button.addEventListener('click', () => {
+        if (productField) productField.value = button.dataset.product;
+      });
+    });
+  }
+
+  function setupContactActions() {
+    const whatsappNumber = WM_CONFIG.WHATSAPP_NUMBER.replace(/\D/g, '');
+    const whatsappLink = document.querySelector('[data-whatsapp-cta]');
+    if (whatsappLink && /^57\d{10}$/.test(whatsappNumber)) {
+      whatsappLink.href = `https://wa.me/${whatsappNumber}`;
+      whatsappLink.target = '_blank';
+      whatsappLink.rel = 'noopener noreferrer';
+      whatsappLink.hidden = false;
+    }
+
+    const phone = WM_CONFIG.PHONE.replace(/[^\d+]/g, '');
+    const phoneLink = document.querySelector('[data-phone-link]');
+    if (phoneLink && phone.replace(/\D/g, '').length >= 7) {
+      phoneLink.href = `tel:${phone}`;
+      phoneLink.hidden = false;
+    }
   }
 
   /* ---------- Año dinámico ---------- */
@@ -109,6 +138,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     renderGrid('#services-grid', WM_DATA.servicios, serviceCardTemplate);
     renderGrid('#products-grid', WM_DATA.productos, productCardTemplate);
+    setupProductQuotes();
     setupContactForm();
   });
 
@@ -117,5 +147,6 @@
     setupScrollSpy();
     setYear();
     applyCompanyConfig();
+    setupContactActions();
   });
 })();

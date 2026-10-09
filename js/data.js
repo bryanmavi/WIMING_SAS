@@ -47,7 +47,12 @@ window.WM_DATA = {
       height: 400,
       tag: 'Media tensión',
       titulo: 'Celda metálica MT 17.5 kV',
-      descripcion: 'Celdas blindadas para subestaciones de media tensión hasta 17.5 kV con interruptor de vacío.'
+      descripcion: 'Solución de media tensión definida según las condiciones y requisitos de cada subestación.',
+      especificaciones: [
+        ['Tensión nominal', 'Por definir según el proyecto'],
+        ['Corriente nominal', 'Por definir según el proyecto'],
+        ['Nivel de cortocircuito', 'Por definir según el proyecto']
+      ]
     },
     {
       img: 'assets/img/tablero-baja-tension.webp',
@@ -57,7 +62,12 @@ window.WM_DATA = {
       height: 400,
       tag: 'Baja tensión',
       titulo: 'Tablero general BT',
-      descripcion: 'Tableros de distribución general con barraje de cobre electrolítico y protecciones modulares.'
+      descripcion: 'Distribución de baja tensión configurada según las cargas y condiciones de instalación.',
+      especificaciones: [
+        ['Tensión nominal', 'Por definir según el proyecto'],
+        ['Corriente del barraje', 'Por definir según el proyecto'],
+        ['Capacidad de cortocircuito', 'Por definir según el proyecto']
+      ]
     },
     {
       img: 'assets/img/tablero-control-medida.webp',
@@ -67,7 +77,12 @@ window.WM_DATA = {
       height: 400,
       tag: 'Control',
       titulo: 'Tablero de control y medida',
-      descripcion: 'Integración de PLCs, medidores multifunción y sistemas SCADA para subestaciones.'
+      descripcion: 'Integración de control y medición definida según las señales y equipos requeridos.',
+      especificaciones: [
+        ['Señales de control', 'Por definir según el proyecto'],
+        ['Instrumentos de medida', 'Por definir según el proyecto'],
+        ['Integración requerida', 'Por definir según el proyecto']
+      ]
     },
     {
       img: 'assets/img/tablero-transferencia-automatica.webp',
@@ -77,7 +92,12 @@ window.WM_DATA = {
       height: 400,
       tag: 'Transferencia',
       titulo: 'Tablero de transferencia automática',
-      descripcion: 'ATS para conmutación red-planta con tiempos de transferencia configurables.'
+      descripcion: 'Transferencia entre fuentes configurada de acuerdo con los requisitos de la instalación.',
+      especificaciones: [
+        ['Fuentes de alimentación', 'Por definir según el proyecto'],
+        ['Corriente nominal', 'Por definir según el proyecto'],
+        ['Modo de control', 'Por definir según el proyecto']
+      ]
     },
     {
       img: 'assets/img/banco-condensadores.webp',
@@ -87,7 +107,12 @@ window.WM_DATA = {
       height: 400,
       tag: 'Compensación',
       titulo: 'Banco de condensadores',
-      descripcion: 'Corrección de factor de potencia automática con control por pasos o tiristorizado.'
+      descripcion: 'Compensación de energía reactiva dimensionada según las condiciones de la instalación.',
+      especificaciones: [
+        ['Potencia reactiva', 'Por definir según el proyecto'],
+        ['Tensión nominal', 'Por definir según el proyecto'],
+        ['Etapas de compensación', 'Por definir según el proyecto']
+      ]
     },
     {
       img: 'assets/img/tablero-a-la-medida.webp',
@@ -97,7 +122,12 @@ window.WM_DATA = {
       height: 400,
       tag: 'Especiales',
       titulo: 'Tableros a la medida',
-      descripcion: 'Diseños personalizados para aplicaciones industriales, minería, oil & gas.'
+      descripcion: 'Diseño particular para aplicaciones y condiciones de operación específicas.',
+      especificaciones: [
+        ['Aplicación', 'Por definir según el proyecto'],
+        ['Tensión y corriente', 'Por definir según el proyecto'],
+        ['Condiciones de instalación', 'Por definir según el proyecto']
+      ]
     }
   ]
 };
