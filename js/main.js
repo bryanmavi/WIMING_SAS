@@ -100,7 +100,8 @@
     const whatsappNumber = WM_CONFIG.WHATSAPP_NUMBER.replace(/\D/g, '');
     const whatsappLink = document.querySelector('[data-whatsapp-cta]');
     if (whatsappLink && /^57\d{10}$/.test(whatsappNumber)) {
-      whatsappLink.href = `https://wa.me/${whatsappNumber}`;
+      const message = 'Hola WIMING SAS, quiero información sobre sus tableros eléctricos.';
+      whatsappLink.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
       whatsappLink.target = '_blank';
       whatsappLink.rel = 'noopener noreferrer';
       whatsappLink.hidden = false;
