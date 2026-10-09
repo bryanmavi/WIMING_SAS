@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title">
+  <title id="title">Tablero de control y medida</title>
+  <rect width="1200" height="800" fill="#f1f3f4"/>
+  <g fill="none" stroke="#c8102e" stroke-width="12" stroke-linejoin="round"><rect x="430" y="150" width="340" height="340" rx="8"/><rect x="490" y="210" width="220" height="85" rx="5"/><circle cx="530" cy="370" r="22"/><circle cx="600" cy="370" r="22"/><circle cx="670" cy="370" r="22"/></g>
+  <text x="600" y="590" text-anchor="middle" fill="#292929" font-family="sans-serif" font-size="38">Control y medida</text>
+</svg>

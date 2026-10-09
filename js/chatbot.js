@@ -61,7 +61,7 @@
         '3. Diagrama unifilar o esquema\n' +
         '4. Tipo de instalación (interior / exterior)\n' +
         '5. Ciudad de entrega\n\n' +
-        'Puedes enviarlos a ventas@wimingsas.com o usar el formulario de contacto. Respondemos en menos de 24h.'
+        'Puedes compartir esta información mediante el formulario de contacto.'
     },
     {
       id: 'tiempo',
@@ -96,12 +96,7 @@
       id: 'contacto',
       keywords: ['contacto', 'teléfono', 'telefono', 'correo', 'email', 'dirección', 'direccion', 'hablar', 'asesor'],
       label: 'Hablar con un asesor',
-      answer:
-        '📍 Bogotá, Colombia\n' +
-        '📞 +57 (1) 123 4567\n' +
-        '✉️ ventas@wimingsas.com\n' +
-        '🕒 Lun a Vie · 8:00 a 17:00\n\n' +
-        'O completa el formulario de la sección Contacto.'
+      answer: 'Completa el formulario de contacto para comunicarte con WIMING SAS.'
     }
   ];
 

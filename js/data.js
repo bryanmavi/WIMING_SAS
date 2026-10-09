@@ -40,37 +40,61 @@ window.WM_DATA = {
 
   productos: [
     {
-      img: 'https://images.unsplash.com/photo-1581094271901-8022df4466f9?auto=format&fit=crop&w=600&q=70',
+      img: 'assets/img/celda-media-tension.webp',
+      placeholder: 'assets/img/celda-media-tension-placeholder.svg',
+      alt: 'Celda metálica de media tensión para subestación eléctrica',
+      width: 600,
+      height: 400,
       tag: 'Media tensión',
       titulo: 'Celda metálica MT 17.5 kV',
       descripcion: 'Celdas blindadas para subestaciones de media tensión hasta 17.5 kV con interruptor de vacío.'
     },
     {
-      img: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=600&q=70',
+      img: 'assets/img/tablero-baja-tension.webp',
+      placeholder: 'assets/img/tablero-baja-tension-placeholder.svg',
+      alt: 'Tablero general de baja tensión para distribución eléctrica',
+      width: 600,
+      height: 400,
       tag: 'Baja tensión',
       titulo: 'Tablero general BT',
       descripcion: 'Tableros de distribución general con barraje de cobre electrolítico y protecciones modulares.'
     },
     {
-      img: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=600&q=70',
+      img: 'assets/img/tablero-control-medida.webp',
+      placeholder: 'assets/img/tablero-control-medida-placeholder.svg',
+      alt: 'Tablero eléctrico de control y medida para subestación',
+      width: 600,
+      height: 400,
       tag: 'Control',
       titulo: 'Tablero de control y medida',
       descripcion: 'Integración de PLCs, medidores multifunción y sistemas SCADA para subestaciones.'
     },
     {
-      img: 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=600&q=70',
+      img: 'assets/img/tablero-transferencia-automatica.webp',
+      placeholder: 'assets/img/tablero-transferencia-automatica-placeholder.svg',
+      alt: 'Tablero de transferencia automática entre red y planta eléctrica',
+      width: 600,
+      height: 400,
       tag: 'Transferencia',
       titulo: 'Tablero de transferencia automática',
       descripcion: 'ATS para conmutación red-planta con tiempos de transferencia configurables.'
     },
     {
-      img: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=600&q=70',
+      img: 'assets/img/banco-condensadores.webp',
+      placeholder: 'assets/img/banco-condensadores-placeholder.svg',
+      alt: 'Banco de condensadores para compensación de energía reactiva',
+      width: 600,
+      height: 400,
       tag: 'Compensación',
       titulo: 'Banco de condensadores',
       descripcion: 'Corrección de factor de potencia automática con control por pasos o tiristorizado.'
     },
     {
-      img: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?auto=format&fit=crop&w=600&q=70',
+      img: 'assets/img/tablero-a-la-medida.webp',
+      placeholder: 'assets/img/tablero-a-la-medida-placeholder.svg',
+      alt: 'Tablero eléctrico diseñado a la medida para una aplicación industrial',
+      width: 600,
+      height: 400,
       tag: 'Especiales',
       titulo: 'Tableros a la medida',
       descripcion: 'Diseños personalizados para aplicaciones industriales, minería, oil & gas.'

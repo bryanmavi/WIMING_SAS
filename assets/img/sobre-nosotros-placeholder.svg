@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title">
+  <title id="title">Equipo e instalaciones de WIMING SAS</title>
+  <rect width="1200" height="800" fill="#f1f3f4"/>
+  <g fill="none" stroke="#c8102e" stroke-width="12" stroke-linejoin="round"><rect x="470" y="150" width="260" height="340" rx="8"/><path d="M510 230h180M510 290h180M510 350h100M600 380l-35 55h45l-20 50"/></g>
+  <text x="600" y="590" text-anchor="middle" fill="#292929" font-family="sans-serif" font-size="38">Sobre WIMING SAS</text>
+</svg>

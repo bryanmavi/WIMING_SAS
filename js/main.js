@@ -23,7 +23,8 @@
   const productCardTemplate = (p) => `
     <div class="col-md-6 col-lg-4">
       <div class="card product-card h-100 shadow-sm border-0">
-        <img src="${p.img}" alt="${p.titulo}" loading="lazy" />
+           <img src="${p.img}" alt="${p.alt}" width="${p.width}" height="${p.height}"
+             loading="lazy" onerror="this.onerror=null;this.src='${p.placeholder}'" />
         <div class="card-body">
           <span class="badge-tag mb-2 d-inline-block">${p.tag}</span>
           <h5 class="fw-bold mt-2">${p.titulo}</h5>
@@ -90,6 +91,20 @@
     if (el) el.textContent = new Date().getFullYear();
   }
 
+  function applyCompanyConfig() {
+    document.querySelectorAll('[data-config-row]').forEach((row) => {
+      const key = row.dataset.configRow;
+      const value = WM_CONFIG[key];
+      if (value === null || value === undefined || value === '') {
+        row.hidden = true;
+        return;
+      }
+      const target = row.querySelector(`[data-config="${key}"]`);
+      if (target) target.textContent = `${row.dataset.configPrefix || ''}${value}`;
+      row.hidden = false;
+    });
+  }
+
   /* ---------- Inicio ---------- */
   document.addEventListener('DOMContentLoaded', () => {
     renderGrid('#services-grid', WM_DATA.servicios, serviceCardTemplate);
@@ -101,5 +116,6 @@
   document.addEventListener('includes:loaded', () => {
     setupScrollSpy();
     setYear();
+    applyCompanyConfig();
   });
 })();

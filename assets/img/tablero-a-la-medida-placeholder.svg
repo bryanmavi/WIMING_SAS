@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title">
+  <title id="title">Tablero eléctrico a la medida</title>
+  <rect width="1200" height="800" fill="#f1f3f4"/>
+  <g fill="none" stroke="#c8102e" stroke-width="12" stroke-linejoin="round"><rect x="430" y="150" width="340" height="340" rx="8"/><path d="M500 220h200v200H500zM545 265h110v110H545zM470 185h-35v-35m295 0h35v35m-295 270h-35v35m295 0h35v-35"/></g>
+  <text x="600" y="590" text-anchor="middle" fill="#292929" font-family="sans-serif" font-size="38">Tablero a la medida</text>
+</svg>
