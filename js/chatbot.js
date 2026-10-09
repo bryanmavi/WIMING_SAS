@@ -139,6 +139,7 @@
   }
 
   function isColombianMobile(value) {
+    if (!/^[+\d\s().-]+$/.test(value)) return false;
     const digits = value.replace(/\D/g, '');
     const nationalNumber = digits.startsWith('57') && digits.length === 12
       ? digits.slice(2)
@@ -150,17 +151,60 @@
     try {
       const stored = JSON.parse(sessionStorage.getItem(QUOTE_STORAGE_KEY));
       if (!stored || !Number.isInteger(stored.step) || !stored.answers || typeof stored.answers !== 'object') {
-        return { step: 0, answers: {} };
+        return { step: 0, answers: {}, consentAccepted: false };
       }
+      const consentAccepted = stored.consentAccepted === true;
       const answers = {};
-      ['product', 'project', 'sector', 'urgency', 'city', 'name', 'company', 'phone']
-        .forEach((key) => {
-          if (typeof stored.answers[key] === 'string') answers[key] = stored.answers[key];
-        });
-      return { step: Math.max(0, Math.min(stored.step, 6)), answers };
+      const limits = { product: 80, project: 40, sector: 40, urgency: 40, city: 80, name: 100, company: 120, phone: 20 };
+      Object.entries(limits).forEach(([key, limit]) => {
+        const isPersonal = ['name', 'company', 'phone'].includes(key);
+        if (typeof stored.answers[key] === 'string' && (!isPersonal || consentAccepted)) {
+          answers[key] = WM_SECURITY.cleanText(stored.answers[key], limit);
+        }
+      });
+      return { step: Math.max(0, Math.min(stored.step, 6)), answers, consentAccepted };
     } catch {
-      return { step: 0, answers: {} };
+      return { step: 0, answers: {}, consentAccepted: false };
     }
+  }
+
+  function appendHoneypot(form) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'form-honeypot';
+    wrapper.setAttribute('aria-hidden', 'true');
+    const label = document.createElement('label');
+    label.textContent = 'Deja este campo vacío';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = 'website';
+    input.tabIndex = -1;
+    input.autocomplete = 'off';
+    label.appendChild(input);
+    wrapper.appendChild(label);
+    form.appendChild(wrapper);
+    return input;
+  }
+
+  function appendDataConsent(form, id, checked, onChange) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'quote-consent';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = id;
+    checkbox.required = true;
+    checkbox.checked = checked;
+    const label = document.createElement('label');
+    label.htmlFor = id;
+    label.textContent = 'Autorizo el tratamiento de mis datos para gestionar esta solicitud.';
+    const link = document.createElement('a');
+    link.href = 'politica-tratamiento.html';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = 'Leer la Política de Tratamiento de Datos Personales (Ley 1581 de 2012)';
+    checkbox.addEventListener('change', () => onChange(checkbox.checked));
+    wrapper.append(checkbox, label, link);
+    form.appendChild(wrapper);
+    return checkbox;
   }
 
   /* ---------- Render del widget ---------- */
@@ -188,7 +232,7 @@
         <div class="chatbot-body" id="cb-body" aria-live="polite" aria-relevant="additions"></div>
         <div class="quick-replies" id="cb-quick"></div>
         <form class="chatbot-input" id="cb-form">
-          <input type="text" id="cb-input" aria-label="Escribe tu pregunta" placeholder="Escribe tu pregunta..." autocomplete="off" />
+          <input type="text" id="cb-input" aria-label="Escribe tu pregunta" placeholder="Escribe tu pregunta..." autocomplete="off" maxlength="240" />
           <button type="submit" aria-label="Enviar"><i class="bi bi-send-fill"></i></button>
         </form>
       </div>
@@ -231,7 +275,7 @@
       document.getElementById('cb-start-quote').addEventListener('click', () => QuoteWizard.start());
       this.inputForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const text = this.input.value.trim();
+        const text = WM_SECURITY.cleanText(this.input.value, 240);
         if (!text) return;
         if (this.mode === 'quote') QuoteWizard.acceptCity(text);
         else this.sendUser(text);
@@ -239,6 +283,7 @@
       });
       this.input.addEventListener('input', () => {
         if (this.mode === 'quote' && QuoteWizard.state.step === 4) {
+          this.input.value = WM_SECURITY.cleanText(this.input.value, 80);
           QuoteWizard.state.answers.city = this.input.value;
           QuoteWizard.save();
         }
@@ -272,7 +317,10 @@
     addMessage(text, sender) {
       const msg = document.createElement('div');
       msg.className = `chat-msg ${sender}`;
-      msg.innerHTML = `<div class="bubble">${this.escape(text)}</div>`;
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = text;
+      msg.appendChild(bubble);
       this.body.appendChild(msg);
       this.body.scrollTop = this.body.scrollHeight;
     },
@@ -284,7 +332,14 @@
       const msg = document.createElement('div');
       msg.className = 'chat-msg bot typing';
       msg.id = 'cb-typing';
-      msg.innerHTML = `<div class="bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      for (let index = 0; index < 3; index += 1) {
+        const dot = document.createElement('span');
+        dot.className = 'dot';
+        bubble.appendChild(dot);
+      }
+      msg.appendChild(bubble);
       this.body.appendChild(msg);
       this.body.scrollTop = this.body.scrollHeight;
     },
@@ -367,11 +422,6 @@
       this.renderQuickReplies([START_QUOTE, ...others]);
     },
 
-    escape(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML.replace(/\n/g, '<br>');
-    }
   };
 
   const QuoteWizard = {
@@ -379,10 +429,28 @@
 
     save() {
       try {
+        if (!this.state.consentAccepted) {
+          delete this.state.answers.name;
+          delete this.state.answers.company;
+          delete this.state.answers.phone;
+        }
         sessionStorage.setItem(QUOTE_STORAGE_KEY, JSON.stringify(this.state));
       } catch {
         this.setStatus('No se pudo guardar el progreso en esta sesión.');
       }
+    },
+
+    revokeConsent() {
+      this.state = { step: 0, answers: {}, consentAccepted: false };
+      try {
+        sessionStorage.removeItem(QUOTE_STORAGE_KEY);
+      } catch {
+        this.setStatus('No se pudo borrar el borrador de esta sesión.');
+      }
+      Chat.body.replaceChildren();
+      Chat.quick.replaceChildren();
+      Chat.addBot('Se retiró la autorización y se borró el borrador de esta sesión. Puedes iniciar una nueva solicitud.');
+      this.renderStep();
     },
 
     start() {
@@ -449,7 +517,7 @@
     },
 
     acceptCity(value) {
-      const city = value.trim();
+      const city = WM_SECURITY.cleanText(value, 80);
       if (city.length < 2 || city.length > 80) {
         this.setStatus('Escribe una ciudad válida (de 2 a 80 caracteres).');
         return;
@@ -468,13 +536,24 @@
       const form = document.createElement('form');
       form.className = 'quote-contact-form';
       form.noValidate = true;
+      const honeypot = appendHoneypot(form);
+      appendDataConsent(form, 'quote-contact-consent', this.state.consentAccepted, (accepted) => {
+        if (!accepted) {
+          this.revokeConsent();
+          return;
+        }
+        this.state.consentAccepted = true;
+        form.querySelectorAll('[data-private-field]').forEach((input) => { input.disabled = false; });
+        this.save();
+        form.elements.name.focus();
+      });
       const fields = [
-        ['name', 'Nombre', 'text', 'name'],
-        ['company', 'Empresa', 'text', 'organization'],
-        ['phone', 'Teléfono celular', 'tel', 'tel']
+        ['name', 'Nombre', 'text', 'name', 100],
+        ['company', 'Empresa', 'text', 'organization', 120],
+        ['phone', 'Teléfono celular', 'tel', 'tel', 20]
       ];
 
-      fields.forEach(([key, labelText, type, autocomplete]) => {
+      fields.forEach(([key, labelText, type, autocomplete, maxLength]) => {
         const label = document.createElement('label');
         label.className = 'quote-field';
         label.textContent = labelText;
@@ -482,10 +561,15 @@
         input.type = type;
         input.name = key;
         input.autocomplete = autocomplete;
+        input.maxLength = maxLength;
         input.required = true;
+        input.disabled = !this.state.consentAccepted;
+        input.dataset.privateField = 'true';
         input.value = this.state.answers[key] || '';
         if (key === 'phone') input.placeholder = '300 123 4567 o +57 300 123 4567';
         input.addEventListener('input', () => {
+          input.value = WM_SECURITY.cleanText(input.value, maxLength);
+          if (!this.state.consentAccepted) return;
           this.state.answers[key] = input.value;
           this.save();
         });
@@ -506,8 +590,11 @@
 
       form.addEventListener('submit', (event) => {
         event.preventDefault();
+        if (honeypot.value.trim()) return;
         const inputs = [...form.querySelectorAll('input')];
-        inputs.forEach((input) => { input.value = input.value.trim(); });
+        inputs.filter((input) => input.type !== 'checkbox').forEach((input) => {
+          input.value = WM_SECURITY.cleanText(input.value, input.maxLength > 0 ? input.maxLength : 1000);
+        });
         if (!form.reportValidity()) return;
         if (!isColombianMobile(form.elements.phone.value)) {
           status.textContent = 'Ingresa un celular colombiano válido, por ejemplo 300 123 4567.';
@@ -530,6 +617,16 @@
       const form = document.createElement('form');
       form.className = 'quote-summary-form';
       form.noValidate = true;
+      const honeypot = appendHoneypot(form);
+      appendDataConsent(form, 'quote-summary-consent', this.state.consentAccepted, (accepted) => {
+        if (!accepted) {
+          this.revokeConsent();
+          return;
+        }
+        this.state.consentAccepted = true;
+        form.querySelectorAll('[data-private-field]').forEach((input) => { input.disabled = false; });
+        this.save();
+      });
 
       const selectField = (key, labelText, options) => {
         const label = document.createElement('label');
@@ -561,9 +658,14 @@
         input.type = type;
         input.name = key;
         input.autocomplete = autocomplete;
+        input.maxLength = key === 'city' ? 80 : key === 'name' ? 100 : key === 'company' ? 120 : 20;
         input.required = true;
+        input.disabled = !this.state.consentAccepted;
+        input.dataset.privateField = 'true';
         input.value = this.state.answers[key] || '';
         input.addEventListener('input', () => {
+          input.value = WM_SECURITY.cleanText(input.value, input.maxLength);
+          if (!this.state.consentAccepted) return;
           this.state.answers[key] = input.value;
           this.save();
         });
@@ -602,13 +704,17 @@
 
       form.addEventListener('submit', (event) => {
         event.preventDefault();
+        if (honeypot.value.trim()) return;
         status.textContent = 'Cambios guardados en esta sesión.';
         this.save();
       });
 
       send.addEventListener('click', () => {
-        const inputs = [...form.querySelectorAll('input')];
-        inputs.forEach((input) => { input.value = input.value.trim(); });
+        if (honeypot.value.trim()) return;
+        const inputs = [...form.querySelectorAll('input:not([type="checkbox"])')];
+        inputs.forEach((input) => {
+          input.value = WM_SECURITY.cleanText(input.value, input.maxLength > 0 ? input.maxLength : 1000);
+        });
         if (!form.reportValidity()) return;
         if (!isColombianMobile(form.elements.phone.value)) {
           status.textContent = 'Ingresa un celular colombiano válido, por ejemplo 300 123 4567.';
@@ -619,6 +725,10 @@
         const number = normalizedWhatsAppNumber();
         if (!/^57\d{10}$/.test(number)) {
           status.textContent = 'WhatsApp no está configurado correctamente. Contacta a WIMING SAS por otro canal.';
+          return;
+        }
+        if (!WM_SECURITY.allowSubmission('quote-whatsapp')) {
+          status.textContent = 'Se alcanzó el límite de envíos de esta sesión. Intenta de nuevo más tarde.';
           return;
         }
 

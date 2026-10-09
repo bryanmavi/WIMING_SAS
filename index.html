@@ -298,19 +298,19 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label" for="contact-name">Nombre</label>
-                <input id="contact-name" type="text" class="form-control" name="nombre" autocomplete="name" required />
+                <input id="contact-name" type="text" class="form-control" name="nombre" autocomplete="name" maxlength="100" required />
               </div>
               <div class="col-md-6">
                 <label class="form-label" for="contact-company">Empresa</label>
-                <input id="contact-company" type="text" class="form-control" name="empresa" autocomplete="organization" />
+                <input id="contact-company" type="text" class="form-control" name="empresa" autocomplete="organization" maxlength="120" />
               </div>
               <div class="col-md-6">
                 <label class="form-label" for="contact-email">Correo de trabajo</label>
-                <input id="contact-email" type="email" class="form-control" name="email" autocomplete="email" required />
+                <input id="contact-email" type="email" class="form-control" name="email" autocomplete="email" maxlength="254" required />
               </div>
               <div class="col-md-6">
                 <label class="form-label" for="contact-phone">Teléfono</label>
-                <input id="contact-phone" type="tel" class="form-control" name="telefono" autocomplete="tel" />
+                <input id="contact-phone" type="tel" class="form-control" name="telefono" autocomplete="tel" maxlength="20" required />
               </div>
               <div class="col-12">
                 <label class="form-label" for="contact-product">Producto de interés</label>
@@ -326,12 +326,22 @@
               </div>
               <div class="col-12">
                 <label class="form-label" for="contact-message">Requisitos principales <span class="text-muted">(opcional)</span></label>
-                <textarea id="contact-message" class="form-control" name="mensaje" rows="3" placeholder="Tensión, corriente, aplicación o ciudad de entrega"></textarea>
+                <textarea id="contact-message" class="form-control" name="mensaje" rows="3" maxlength="1000" placeholder="Tensión, corriente, aplicación o ciudad de entrega"></textarea>
+              </div>
+              <div class="form-honeypot" aria-hidden="true">
+                <label for="contact-website">Deja este campo vacío</label>
+                <input id="contact-website" type="text" name="website" tabindex="-1" autocomplete="off" />
+              </div>
+              <div class="col-12 consent-control">
+                <input id="contact-data-consent" type="checkbox" name="dataConsent" required />
+                <label for="contact-data-consent">Autorizo el tratamiento de mis datos para gestionar esta solicitud.</label>
+                <a href="politica-tratamiento.html">Leer la Política de Tratamiento de Datos Personales (Ley 1581 de 2012)</a>
               </div>
               <div class="col-12">
                 <button type="submit" class="btn btn-danger px-4">
                   <i class="bi bi-send-fill me-2"></i>Revisar solicitud
                 </button>
+                <div id="contact-actions" class="contact-actions" hidden></div>
               </div>
             </div>
             <div id="contact-feedback" class="mt-3" role="status" aria-live="polite"></div>
@@ -372,6 +382,7 @@
   <script src="config.js"></script>
   <script src="js/components.js"></script>
   <script src="js/data.js"></script>
+  <script src="js/security.js"></script>
   <script src="js/main.js"></script>
   <script src="js/chatbot.js"></script>
 </body>
