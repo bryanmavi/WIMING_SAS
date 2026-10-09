@@ -26,7 +26,7 @@
 .text-danger { color: var(--wm-red) !important; }
 
 body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Barlow', 'Segoe UI', system-ui, sans-serif;
   color: #222;
 }
 
@@ -185,7 +185,7 @@ body {
   color: #bbb;
   padding: 3rem 0 1rem;
 }
-.footer-wm h6 { color: #fff; font-weight: 600; }
+.footer-wm h2 { color: #fff; font-weight: 600; }
 .footer-wm a { color: #bbb; text-decoration: none; }
 .footer-wm a:hover { color: var(--wm-red-light); }
 .footer-wm .footer-bottom {

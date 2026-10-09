@@ -14,7 +14,7 @@
     <div class="col-md-6 col-lg-4">
       <div class="feature-card p-4">
         <div class="icon-wrap"><i class="bi ${s.icono}"></i></div>
-        <h5 class="fw-bold">${s.titulo}</h5>
+        <h3 class="h5 fw-bold">${s.titulo}</h3>
         <p class="text-muted mb-0">${s.descripcion}</p>
       </div>
     </div>
@@ -23,13 +23,13 @@
   const productCardTemplate = (p) => `
     <div class="col-md-6 col-lg-4">
       <div class="card product-card h-100 shadow-sm border-0">
-           <img src="${p.img}" alt="${p.alt}" width="${p.width}" height="${p.height}"
-             loading="lazy" onerror="this.onerror=null;this.src='${p.placeholder}'" />
+        <img src="${p.img}" alt="${p.alt}" width="${p.width}" height="${p.height}"
+             loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${p.placeholder}'" />
         <div class="card-body">
           <span class="badge-tag mb-2 d-inline-block">${p.tag}</span>
-          <h5 class="fw-bold mt-2">${p.titulo}</h5>
+          <h3 class="h5 fw-bold mt-2">${p.titulo}</h3>
           <p class="text-muted small mb-3">${p.descripcion}</p>
-          <h6 class="product-specs-heading">Datos técnicos por confirmar</h6>
+          <h4 class="h6 product-specs-heading">Datos técnicos por confirmar</h4>
           <ul class="product-specs">
             ${p.especificaciones.map(([label, value]) => `<li><span>${label}</span><strong>${value}</strong></li>`).join('')}
           </ul>
@@ -105,6 +105,25 @@
       whatsappLink.target = '_blank';
       whatsappLink.rel = 'noopener noreferrer';
       whatsappLink.hidden = false;
+    }
+
+    document.querySelectorAll('[data-social-link]').forEach((link) => {
+      const value = WM_CONFIG[link.dataset.socialLink];
+      if (typeof value !== 'string' || !value.trim()) return;
+      try {
+        const url = new URL(value.trim());
+        if (!['https:', 'http:'].includes(url.protocol)) return;
+        link.href = url.href;
+        link.hidden = false;
+      } catch {
+        link.hidden = true;
+      }
+    });
+
+    const footerWhatsApp = document.querySelector('[data-whatsapp-link]');
+    if (footerWhatsApp && /^57\d{10}$/.test(whatsappNumber)) {
+      footerWhatsApp.href = `https://wa.me/${whatsappNumber}`;
+      footerWhatsApp.hidden = false;
     }
 
     const phone = WM_CONFIG.PHONE.replace(/[^\d+]/g, '');
